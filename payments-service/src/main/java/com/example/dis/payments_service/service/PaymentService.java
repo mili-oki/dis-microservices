@@ -1,8 +1,10 @@
 package com.example.dis.payments_service.service;
 
+import com.example.dis.payments_service.client.NotificationsClient;
 import com.example.dis.payments_service.client.OrderDto;
 import com.example.dis.payments_service.client.OrderStatus;
 import com.example.dis.payments_service.client.OrdersClient;
+import com.example.dis.payments_service.client.PaymentNotification;
 import com.example.dis.payments_service.model.Payment;
 import com.example.dis.payments_service.model.PaymentStatus;
 import com.example.dis.payments_service.repository.PaymentRepository;
@@ -20,12 +22,16 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrdersClient ordersClient;
+    private final NotificationsClient notificationsClient;
 
-    public PaymentService(PaymentRepository paymentRepository, OrdersClient ordersClient) {
+    public PaymentService(PaymentRepository paymentRepository,
+                          OrdersClient ordersClient,
+                          NotificationsClient notificationsClient) {
         this.paymentRepository = paymentRepository;
         this.ordersClient = ordersClient;
+        this.notificationsClient = notificationsClient;
     }
-
+    
     public List<Payment> getAll() {
         return paymentRepository.findAll();
     }
@@ -59,6 +65,20 @@ public class PaymentService {
 
         // 3) ako je success → potvrdi order u orders-service
         ordersClient.confirm(orderId);
+        
+        // pošalji notifikaciju
+        try {
+            PaymentNotification notif = new PaymentNotification();
+            notif.setOrderId(orderId);
+            notif.setAmount(amount);
+            notif.setStatus("SUCCESS");
+            notif.setMessage("Payment processed and order confirmed");
+            notificationsClient.notifyPayment(notif);
+        } catch (Exception ex) {
+            // ne ruši plaćanje ako notifikacija padne; samo zaloguj
+            // (kasnije će MQ rešiti pouzdanost)
+            System.err.println("Failed to notify notifications-service: " + ex.getMessage());
+        }
 
         return p;
     }

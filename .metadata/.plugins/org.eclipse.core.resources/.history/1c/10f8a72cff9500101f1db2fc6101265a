@@ -1,0 +1,43 @@
+package com.example.dis.orders_service.service;
+
+import com.example.dis.orders_service.client.CatalogClient;
+import com.example.dis.orders_service.client.ProductDto;
+import com.example.dis.orders_service.model.Order;
+import com.example.dis.orders_service.model.OrderStatus;
+import com.example.dis.orders_service.repository.OrderRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final CatalogClient catalogClient;
+
+    public OrderService(OrderRepository orderRepository, CatalogClient catalogClient) {
+        this.orderRepository = orderRepository;
+        this.catalogClient = catalogClient;
+    }
+
+    public List<Order> getAll() {
+        return orderRepository.findAll();
+    }
+
+    public Order createOrder(Long productId, Integer quantity) {
+        // pozovi catalog-service da proveri proizvod
+        ProductDto product = catalogClient.getProductById(productId);
+
+        if (product == null || product.getStock() < quantity) {
+            throw new IllegalArgumentException("Product not available");
+        }
+
+        // ✨ Ovde praviš novu instancu
+        Order order = new Order();
+        order.setProductId(productId);
+        order.setQuantity(quantity);
+        order.setStatus(OrderStatus.PENDING);
+
+        return orderRepository.save(order);
+    }
+}

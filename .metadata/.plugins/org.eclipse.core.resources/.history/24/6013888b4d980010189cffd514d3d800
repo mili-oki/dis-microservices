@@ -1,0 +1,5 @@
+package com.example.dis.gateway.security;
+
+public class SecurityConfig {
+
+}

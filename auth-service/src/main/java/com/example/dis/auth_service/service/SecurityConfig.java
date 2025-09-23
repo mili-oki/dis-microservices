@@ -7,17 +7,16 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
-
-  @Bean
-  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http
-        .csrf(csrf -> csrf.disable())
-        .httpBasic(basic -> basic.disable())
-        .formLogin(form -> form.disable())
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/**").permitAll()   // <-- dozvoli register/login
-            .anyRequest().authenticated()
-        )
-        .build();
-  }
+	  @Bean
+	  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	    return http
+	      .csrf(csrf -> csrf.disable())
+	      .httpBasic(b -> b.disable())
+	      .formLogin(f -> f.disable())
+	      .authorizeHttpRequests(a -> a
+	        .requestMatchers("/auth/**").permitAll()   // <-- dozvoli /auth/*
+	        .anyRequest().authenticated()
+	      )
+	      .build();
+	  }
 }

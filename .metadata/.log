@@ -3787,3 +3787,276 @@ END
 
 !ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 09:16:07.279
 !MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.eclipse.lsp4e 2 0 2025-09-23 09:20:13.633
+!MESSAGE Javadoc unavailable. Failed to obtain it.
+!STACK 0
+java.lang.InterruptedException
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:386)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at org.eclipse.lsp4e.jdt.LSJavaHoverProvider.getHoverInfo2(LSJavaHoverProvider.java:66)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:163)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:130)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$1.run(TextViewerHoverManager.java:155)
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.917
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.919
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.919
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.919
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.920
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.920
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.921
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 11:48:09.921
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:02:55.649
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:42.994
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:42.995
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:42.995
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:42.996
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:42.996
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:43.206
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:43.208
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:12:43.208
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.377
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.377
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.377
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.378
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.640
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.640
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.640
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:19:14.640
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:30:29.480
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:30:40.560
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.297
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.297
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.705
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.705
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.705
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.705
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.705
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:33:17.705
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:35:31.057
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:41:57.957
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:43:27.246
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 12:44:48.122
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:00:38.774
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.378
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.378
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.378
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.379
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.379
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.379
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.379
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 13:01:16.379
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:22.829
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:22.830
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:22.830
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:22.830
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:23.068
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:23.068
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:23.068
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:08:23.068
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:15.880
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:15.880
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:15.881
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:15.881
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:15.881
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:16.100
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:16.100
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:25:16.100
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:29:32.619
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.eclipse.lsp4e 2 0 2025-09-23 15:32:49.997
+!MESSAGE Javadoc unavailable. Failed to obtain it.
+!STACK 0
+java.lang.InterruptedException
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:386)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at org.eclipse.lsp4e.jdt.LSJavaHoverProvider.getHoverInfo2(LSJavaHoverProvider.java:66)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:163)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:130)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$1.run(TextViewerHoverManager.java:155)
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:42:44.214
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 15:47:44.673
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:34.868
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:34.869
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:34.869
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:34.869
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:35.126
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:35.126
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:35.127
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:15:35.127
+!MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:16.646
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:16.647
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:17.058
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:17.058
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:17.058
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:17.058
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:17.058
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:17.058
+!MESSAGE Classpath changed for project: payments-service

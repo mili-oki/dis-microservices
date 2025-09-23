@@ -13,9 +13,7 @@ public class AuthController {
 
   private final AuthService service;
 
-  public AuthController(AuthService service) {
-    this.service = service;
-  }
+  public AuthController(AuthService service) { this.service = service; }
 
   @PostMapping("/register")
   @ResponseStatus(HttpStatus.CREATED)

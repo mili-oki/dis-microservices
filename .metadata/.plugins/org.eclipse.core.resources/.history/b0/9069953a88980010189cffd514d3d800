@@ -1,0 +1,76 @@
+package com.example.dis.gateway.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+
+@Configuration
+@EnableWebFluxSecurity
+public class SecurityConfig {
+
+  private final JwtReactiveAuthenticationManager authManager;
+  private final BearerTokenServerAuthenticationConverter converter;
+
+  public SecurityConfig(JwtReactiveAuthenticationManager authManager,
+                        BearerTokenServerAuthenticationConverter converter) {
+    this.authManager = authManager;
+    this.converter = converter;
+  }
+
+  // 1) JAVNO: /auth-service/auth/**
+  @Bean @Order(1)
+  public SecurityWebFilterChain publicChain(ServerHttpSecurity http) {
+    return http
+        .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/auth-service/auth/**"))
+        .authorizeExchange(reg -> reg.anyExchange().permitAll())
+        .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+        .build();
+  }
+
+  // 2) JAVNO: /actuator/**
+  @Bean @Order(2)
+  public SecurityWebFilterChain actuatorChain(ServerHttpSecurity http) {
+    return http
+        .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
+        .authorizeExchange(reg -> reg.anyExchange().permitAll())
+        .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+        .build();
+  }
+
+  // 3) JAVNO: /eureka/**
+  @Bean @Order(3)
+  public SecurityWebFilterChain eurekaChain(ServerHttpSecurity http) {
+    return http
+        .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/eureka/**"))
+        .authorizeExchange(reg -> reg.anyExchange().permitAll())
+        .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+        .build();
+  }
+
+  // 4) OSTALO: JWT OBAVEZAN
+  @Bean @Order(99)
+  public SecurityWebFilterChain protectedChain(ServerHttpSecurity http) {
+    AuthenticationWebFilter authWebFilter = new AuthenticationWebFilter(authManager);
+    authWebFilter.setServerAuthenticationConverter(converter);
+
+    return http
+        .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+        .authorizeExchange(reg -> reg.anyExchange().authenticated())
+        .addFilterAt(authWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+        .build();
+  }
+}

@@ -1,6 +1,7 @@
+server:
+  port: 8086
+
 spring:
-  application:
-    name: auth-service
   datasource:
     url: jdbc:postgresql://localhost:5432/authdb
     username: auth
@@ -10,8 +11,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-server:
-  port: 8086
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 auth:
   jwt:

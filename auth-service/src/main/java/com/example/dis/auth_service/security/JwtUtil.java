@@ -1,15 +1,15 @@
 package com.example.dis.auth_service.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -20,36 +20,18 @@ public class JwtUtil {
   @Value("${auth.jwt.issuer}")
   private String issuer;
 
-  @Value("${auth.jwt.expires-min}")
-  private long expiresMin;
+  @Value("${auth.jwt.expires-min:120}")
+  private long expiresMinutes;
 
-  public String generate(String username, List<String> roles) {
-    Date now = new Date();
-    Date exp = new Date(now.getTime() + expiresMin * 60_000);
-
+  public String generate(String subject, List<String> roles) {
+    Instant now = Instant.now();
     return Jwts.builder()
-        .setSubject(username)
+        .setSubject(subject)
         .setIssuer(issuer)
-        .setIssuedAt(now)
-        .setExpiration(exp)
+        .setIssuedAt(Date.from(now))
+        .setExpiration(Date.from(now.plusSeconds(expiresMinutes * 60)))
         .claim("roles", roles)
         .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
         .compact();
-  }
-
-  public Jws<Claims> parse(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
-        .build()
-        .parseClaimsJws(token);
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<String> extractRoles(Claims claims) {
-    Object raw = claims.get("roles");
-    if (raw instanceof List<?> list) {
-      return list.stream().map(Object::toString).collect(Collectors.toList());
-    }
-    return Collections.emptyList();
   }
 }

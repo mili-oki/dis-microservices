@@ -4060,3 +4060,27 @@ java.lang.InterruptedException
 
 !ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 16:26:17.058
 !MESSAGE Classpath changed for project: payments-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:37.811
+!MESSAGE Classpath changed for project: auth-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:37.812
+!MESSAGE Classpath changed for project: catalog-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:37.812
+!MESSAGE Classpath changed for project: config-server
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:38.186
+!MESSAGE Classpath changed for project: discovery-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:38.186
+!MESSAGE Classpath changed for project: gateway
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:38.186
+!MESSAGE Classpath changed for project: notifications-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:38.186
+!MESSAGE Classpath changed for project: orders-service
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2025-09-23 19:05:38.186
+!MESSAGE Classpath changed for project: payments-service

@@ -1,0 +1,40 @@
+package com.example.dis.gateway.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+
+@Configuration
+@EnableWebFluxSecurity
+public class SecurityConfig {
+
+  private final JwtReactiveAuthenticationManager authManager;
+  private final BearerTokenServerAuthenticationConverter converter;
+
+  public SecurityConfig(JwtReactiveAuthenticationManager authManager,
+                        BearerTokenServerAuthenticationConverter converter) {
+    this.authManager = authManager;
+    this.converter = converter;
+  }
+
+  @Bean
+  public SecurityWebFilterChain security(ServerHttpSecurity http) {
+    AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(authManager);
+    jwtFilter.setServerAuthenticationConverter(converter);
+
+    return http
+        .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+        .authorizeExchange(reg -> reg
+            .pathMatchers("/auth-service/auth/**", "/actuator/**", "/eureka/**").permitAll()
+            .anyExchange().authenticated()
+        )
+        .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+        .build();
+  }
+}

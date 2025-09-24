@@ -5,6 +5,7 @@ import com.example.dis.payments_service.client.OrderDto;
 import com.example.dis.payments_service.client.OrderStatus;
 import com.example.dis.payments_service.client.OrdersClient;
 import com.example.dis.payments_service.client.PaymentNotification;
+import com.example.dis.payments_service.messaging.PaymentEventPublisher;
 import com.example.dis.payments_service.model.Payment;
 import com.example.dis.payments_service.model.PaymentStatus;
 import com.example.dis.payments_service.repository.PaymentRepository;
@@ -23,13 +24,16 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrdersClient ordersClient;
     private final NotificationsClient notificationsClient;
-
+    private final PaymentEventPublisher publisher;
+    
     public PaymentService(PaymentRepository paymentRepository,
                           OrdersClient ordersClient,
-                          NotificationsClient notificationsClient) {
+                          NotificationsClient notificationsClient,
+                          PaymentEventPublisher publisher) {
         this.paymentRepository = paymentRepository;
         this.ordersClient = ordersClient;
         this.notificationsClient = notificationsClient;
+        this.publisher = publisher;
     }
     
     public List<Payment> getAll() {
@@ -74,6 +78,13 @@ public class PaymentService {
             notif.setStatus("SUCCESS");
             notif.setMessage("Payment processed and order confirmed");
             notificationsClient.notifyPayment(notif);
+            
+            publisher.publish(new PaymentNotification(
+            	    orderId,
+            	    amount,
+            	    "SUCCESS",
+            	    "Payment captured"
+            	));
         } catch (Exception ex) {
             // ne ruši plaćanje ako notifikacija padne; samo zaloguj
             // (kasnije će MQ rešiti pouzdanost)

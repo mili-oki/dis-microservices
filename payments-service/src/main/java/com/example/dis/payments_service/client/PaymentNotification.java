@@ -7,6 +7,11 @@ public class PaymentNotification {
     private BigDecimal amount;
     private String status;
     private String message;
+    
+    public PaymentNotification() {}
+    public PaymentNotification(Long orderId, BigDecimal amount, String status, String message) {
+        this.orderId = orderId; this.amount = amount; this.status = status; this.message = message;
+    }
 
     public Long getOrderId() { return orderId; }
     public void setOrderId(Long orderId) { this.orderId = orderId; }

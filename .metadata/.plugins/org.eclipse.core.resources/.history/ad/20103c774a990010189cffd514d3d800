@@ -1,0 +1,26 @@
+package com.example.dis.notifications_service.controller;
+
+import com.example.dis.notifications_service.api.NotificationController;
+import com.example.dis.notifications_service.model.PaymentNotification;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.ResponseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class NotificationControllerTest {
+
+    @Test
+    void notifyPayment_returns_ack_and_200() {
+        NotificationController controller = new NotificationController();
+
+        PaymentNotification payload = new PaymentNotification();
+        payload.setOrderId(123L);
+        payload.setStatus("SUCCESS");
+        payload.setMessage("ok");
+
+        ResponseEntity<String> res = controller.notifyPayment(payload);
+
+        assertThat(res.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(res.getBody()).contains("received");
+    }
+}

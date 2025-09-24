@@ -1,0 +1,40 @@
+package com.example.dis.catalog_service.repository;
+
+import com.example.dis.catalog_service.model.Product;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest(properties = {
+        "spring.sql.init.mode=never",
+        "spring.liquibase.enabled=false",
+        "spring.flyway.enabled=false",
+        "spring.jpa.hibernate.ddl-auto=create-drop"
+})
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY) // koristi embedded DB
+class ProductRepositoryTest {
+
+    @Autowired
+    private ProductRepository repo;
+
+    @Test
+    void saves_and_reads_product() {
+        Product p = new Product();
+        p.setName("Item");
+        p.setPrice(new BigDecimal("12.34"));
+        p.setStock(5);
+
+        Product saved = repo.save(p);
+        assertThat(saved.getId()).isNotNull();
+
+        Product loaded = repo.findById(saved.getId()).orElseThrow();
+        assertThat(loaded.getName()).isEqualTo("Item");
+        assertThat(loaded.getPrice()).isEqualByComparingTo("12.34");
+        assertThat(loaded.getStock()).isEqualTo(5);
+    }
+}

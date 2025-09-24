@@ -1,0 +1,66 @@
+package com.example.dis.catalog_service;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+        "spring.profiles.active=test",
+        "spring.datasource.url=jdbc:h2:mem:cattest;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
+        "spring.datasource.driverClassName=org.h2.Driver",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.jpa.hibernate.ddl-auto=create-drop",
+        "spring.liquibase.enabled=false",
+        "spring.flyway.enabled=false",
+        "eureka.client.enabled=false",
+        "spring.cloud.discovery.enabled=false",
+        "spring.sql.init.mode=never" 
+    }
+)
+class CatalogApiTest {
+
+    @LocalServerPort
+    int port;
+
+    @Autowired
+    TestRestTemplate rest;
+
+    @Test
+    void list_products_endpoint_returns_2xx() {
+        String base = "http://localhost:" + port;
+        String[] candidates = { "/products", "/api/products", "/catalog/products" };
+
+        ResponseEntity<String> hit = null;
+        String used = null;
+        Map<String, HttpStatusCode> tried = new LinkedHashMap<>();
+
+        for (String path : candidates) {
+            ResponseEntity<String> res = rest.getForEntity(base + path, String.class);
+            tried.put(path, res.getStatusCode());
+            if (res.getStatusCode().is2xxSuccessful()) {
+                hit = res;
+                used = path;
+                break;
+            }
+        }
+
+        assertThat(hit)
+          .withFailMessage("None of the candidate endpoints returned 2xx, tried: %s", tried)
+          .isNotNull();
+
+        System.out.println("CatalogApiTest hit endpoint: " + used);
+        assertThat(hit.getBody()).isNotNull(); // moze biti prazan JSON, bitno je 2xx
+    }
+}

@@ -1,0 +1,20 @@
+package com.example.dis.notifications;
+
+import com.example.dis.notifications.controller.NotificationController;
+import com.example.dis.notifications.model.PaymentNotification;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class NotificationControllerTest {
+
+    @Test
+    void notifyPayment_returns_ack() {
+        NotificationController controller = new NotificationController();
+        PaymentNotification pn = new PaymentNotification(1L, "SUCCESS", "ok");
+
+        var response = controller.notifyPayment(pn);
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).contains("received");
+    }
+}

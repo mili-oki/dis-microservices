@@ -1,0 +1,26 @@
+package com.example.dis.orders_service.messaging;
+
+import com.example.dis.orders_service.messaging.PaymentResultEvent;
+import com.example.dis.orders_service.service.OrderService;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.mock;
+
+class PaymentResultListenerTest {
+    private final OrderService orderService = mock(OrderService.class);
+
+
+    @Test
+    void onMessage_does_not_throw_for_valid_payload() {
+        PaymentResultListener listener = new PaymentResultListener(); // ako ima dependencije, mock-uj i prosledi u ctor
+
+        PaymentResultEvent evt = new PaymentResultEvent();
+        evt.setOrderId(42L);
+        evt.setStatus("SUCCESS");
+        evt.setMessage("ok");
+
+        assertThatCode(() -> listener.onMessage(evt)).doesNotThrowAnyException();
+    }
+}

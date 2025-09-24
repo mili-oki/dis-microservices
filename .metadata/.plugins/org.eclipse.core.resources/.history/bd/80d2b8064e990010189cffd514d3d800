@@ -1,0 +1,79 @@
+package com.example.dis.auth_service;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.*;
+
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+        "spring.profiles.active=test",
+        // H2 za IT
+        "spring.datasource.url=jdbc:h2:mem:authtest;DB_CLOSE_DELAY=-1",
+        "spring.datasource.driverClassName=org.h2.Driver",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.jpa.hibernate.ddl-auto=create-drop",
+        // ugasi service discovery
+        "eureka.client.enabled=false",
+        "spring.cloud.discovery.enabled=false"
+    }
+)
+class AuthApiTest {
+
+    @LocalServerPort
+    int port;
+
+    @Autowired
+    TestRestTemplate rest;
+
+    @Test
+    void register_and_login_flow_with_username() {
+        String base = "http://localhost:" + port;
+
+        // register (username + passwordHash)
+        ResponseEntity<String> regRes = rest.postForEntity(
+            base + "/auth/register",
+            Map.of("username", "testuser", "password", "pwd"),
+            String.class
+        );
+        assertThat(regRes.getStatusCode().is2xxSuccessful()).isTrue();
+
+        // login (username + password)
+        ResponseEntity<String> loginRes = rest.postForEntity(
+            base + "/auth/login",
+            Map.of("username", "testuser", "password", "pwd"),
+            String.class
+        );
+        assertThat(loginRes.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(loginRes.getBody()).contains("token");
+    }
+
+    @Test
+    void login_with_wrong_password_returns_401() {
+        String base = "http://localhost:" + port;
+
+        // priprema: registruj user-a
+        rest.postForEntity(
+            base + "/auth/register",
+            Map.of("username", "john", "password", "secret"),
+            String.class
+        );
+
+        // pogrešna lozinka
+        ResponseEntity<String> badLogin = rest.postForEntity(
+            base + "/auth/login",
+            Map.of("username", "john", "password", "bad"),
+            String.class
+        );
+
+        assertThat(badLogin.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+}

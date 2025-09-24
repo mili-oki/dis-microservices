@@ -1,0 +1,26 @@
+package com.example.dis.orders_service.messaging;
+
+import java.math.BigDecimal;
+
+public class PaymentResultEvent {
+    private Long orderId;
+    private BigDecimal amount;
+    private String status;  // "SUCCESS" | "FAILED"
+    private String message;
+
+    public PaymentResultEvent() {}
+    public PaymentResultEvent(Long orderId, BigDecimal amount, String status, String message) {
+        this.orderId = orderId;
+        this.amount = amount;
+        this.status = status;
+        this.message = message;
+    }
+    public Long getOrderId() { return orderId; }
+    public BigDecimal getAmount() { return amount; }
+    public String getStatus() { return status; }
+    public String getMessage() { return message; }
+    public void setOrderId(Long orderId) { this.orderId = orderId; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public void setStatus(String status) { this.status = status; }
+    public void setMessage(String message) { this.message = message; }
+}

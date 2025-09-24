@@ -79,16 +79,30 @@ public class PaymentService {
             notif.setMessage("Payment processed and order confirmed");
             notificationsClient.notifyPayment(notif);
             
-            publisher.publish(new PaymentNotification(
-            	    orderId,
-            	    amount,
-            	    "SUCCESS",
-            	    "Payment captured"
-            	));
+            publisher.publishToOrders(new PaymentNotification(
+                    orderId,
+                    amount,
+                    "SUCCESS",
+                    "Payment captured"
+            ));
+            
+            publisher.publishToNotifications(new PaymentNotification(
+                    orderId,
+                    amount,
+                    "SUCCESS",
+                    "Payment captured"
+            ));
         } catch (Exception ex) {
             // ne ruši plaćanje ako notifikacija padne; samo zaloguj
             // (kasnije će MQ rešiti pouzdanost)
-            System.err.println("Failed to notify notifications-service: " + ex.getMessage());
+//            System.err.println("Failed to notify notifications-service: " + ex.getMessage());
+            publisher.publishToOrders(new PaymentNotification(
+                    orderId,
+                    amount,
+                    "FAILED",
+                    "Payment failed – reverting order to PENDING"
+            ));
+
         }
 
         return p;

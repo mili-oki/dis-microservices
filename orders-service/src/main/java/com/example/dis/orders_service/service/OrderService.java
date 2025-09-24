@@ -89,4 +89,47 @@ public class OrderService {
         }
         orderRepository.delete(o);
     }
+    
+    @Transactional
+    public Order updateStatus(Long id, OrderStatus newStatus) {
+        Order o = getById(id);
+
+        // idempotentno
+        if (o.getStatus() == newStatus) {
+            return o;
+        }
+
+        // terminalni statusi – ne diramo
+        if (o.getStatus() == OrderStatus.CANCELLED || o.getStatus() == OrderStatus.PAYED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Terminal state; status cannot be changed");
+        }
+
+        // dozvoli SPECIFIČNE prelaze:
+        switch (newStatus) {
+            case PENDING -> {
+                // koristimo za rollback posle payment FAILED:
+                // dozvoljeno samo iz CONFIRMED (npr. rezervacija potvrđena, ali plaćanje palo)
+                if (o.getStatus() != OrderStatus.CONFIRMED) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Only CONFIRMED → PENDING is allowed");
+                }
+                o.setStatus(OrderStatus.PENDING);
+            }
+            case CONFIRMED -> {
+                // ručno potvrđivanje (već imaš confirm(id)), ali dodajemo radi potpunosti
+                if (o.getStatus() != OrderStatus.PENDING) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Only PENDING → CONFIRMED");
+                }
+                o.setStatus(OrderStatus.CONFIRMED);
+            }
+            case CANCELLED -> {
+                // imaš cancel(id); dodajemo ovde ako želiš generički put
+                if (o.getStatus() == OrderStatus.CONFIRMED || o.getStatus() == OrderStatus.PAYED) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot cancel CONFIRMED/PAYED");
+                }
+                o.setStatus(OrderStatus.CANCELLED);
+            }
+        }
+
+        return orderRepository.save(o);
+    }
 }

@@ -16,14 +16,14 @@ public class GatewaySecurityConfig {
       .csrf(ServerHttpSecurity.CsrfSpec::disable)
       .authorizeExchange(ex -> ex
         // actuator samog gateway-a
-        .pathMatchers("/actuator/**",   "/**/actuator/**").permitAll()
+        .pathMatchers("/actuator/**").permitAll()
+        // PROKSI PUTANJE ka servisima – pusti health/info bez tokena
         .pathMatchers(
           "/auth-service/actuator/**",
           "/catalog-service/actuator/**",
           "/orders-service/actuator/**",
           "/payments-service/actuator/**",
-          "/notifications-service/actuator/**",
-          "/auth-service/api/auth/**"
+          "/notifications-service/actuator/**"
         ).permitAll()
         // javni auth endpointi
         .pathMatchers("/auth-service/**", "/auth/**").permitAll()

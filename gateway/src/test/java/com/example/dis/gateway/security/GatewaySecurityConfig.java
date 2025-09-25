@@ -15,7 +15,9 @@ public class GatewaySecurityConfig {
     return http
       .csrf(ServerHttpSecurity.CsrfSpec::disable)
       .authorizeExchange(ex -> ex
+        // actuator samog gateway-a
         .pathMatchers("/actuator/**").permitAll()
+        // PROKSI PUTANJE ka servisima – pusti health/info bez tokena
         .pathMatchers(
           "/auth-service/actuator/**",
           "/catalog-service/actuator/**",
@@ -23,7 +25,9 @@ public class GatewaySecurityConfig {
           "/payments-service/actuator/**",
           "/notifications-service/actuator/**"
         ).permitAll()
+        // javni auth endpointi
         .pathMatchers("/auth-service/**", "/auth/**").permitAll()
+        // ostalo zahteva auth
         .anyExchange().authenticated()
       )
       .build();

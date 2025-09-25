@@ -1,12 +1,18 @@
 build:
-\tdocker compose build
+	docker compose build
+
 up:
-\tdocker compose up -d
+	docker compose up -d
+
 down:
-\tdocker compose down
+	docker compose down
+
 logs:
-\tdocker compose logs -f
+	docker compose logs -f
+
 ps:
-\tdocker compose ps
+	docker compose ps
+
 purge:
-\tdocker compose down -v --remove-orphans
+	docker compose down -v --remove-orphans
+

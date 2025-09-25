@@ -14,8 +14,8 @@ public class SecurityConfig {
 	      .httpBasic(b -> b.disable())
 	      .formLogin(f -> f.disable())
 	      .authorizeHttpRequests(a -> a
-	    	.requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()       
-	        .requestMatchers("/auth/**").permitAll()   // <-- dozvoli /auth/*
+	    	 .requestMatchers("/actuator/**").permitAll()     
+	        .requestMatchers("/auth/**").permitAll()  
 	        .anyRequest().authenticated()
 	      )
 	      .build();

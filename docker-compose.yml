@@ -1,10 +1,287 @@
+version: "3.9"
+
 services:
+  # --- Databases ---
+  postgres-auth:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth -d authdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    volumes: [pgdata-auth:/var/lib/postgresql/data]
+    networks: [dis-net]
+
+  postgres-catalog:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: catalogdb
+      POSTGRES_USER: catalog
+      POSTGRES_PASSWORD: catalog
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U catalog -d catalogdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    volumes: [pgdata-catalog:/var/lib/postgresql/data]
+    networks: [dis-net]
+
+  postgres-orders:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ordersdb
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: orders
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders -d ordersdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    volumes: [pgdata-orders:/var/lib/postgresql/data]
+    networks: [dis-net]
+
+  postgres-payments:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: paymentsdb
+      POSTGRES_USER: payments
+      POSTGRES_PASSWORD: payments
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payments -d paymentsdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    volumes: [pgdata-payments:/var/lib/postgresql/data]
+    networks: [dis-net]
+
+  # --- RabbitMQ ---
   rabbitmq:
     image: rabbitmq:3.13-management
-    container_name: dis-rabbit
-    ports:
-      - "5672:5672"   # AMQP
-      - "15672:15672" # Management UI http://localhost:15672 (guest/guest)
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "15672:15672"  # UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks: [dis-net]
+
+  # --- Config Server ---
+  config-server:
+    build:
+      context: ./config-server
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      # Overrajdujemo path ka montiranom repo-u (umesto file:../config-repo)
+      SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS: file:/workspace/config-repo
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
+      # Ako hoćeš da isključiš pokušaje Eureka klijenta ovde:
+      # EUREKA_CLIENT_ENABLED: "false"
+    volumes:
+      - ./config-repo:/workspace/config-repo:ro
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+  # --- Eureka (Discovery) ---
+  discovery-service:
+    build:
+      context: ./discovery-service
+    environment:
+      # Dozvoljeno je i da se uveze config sa config-servera:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
+    depends_on:
+      config-server:
+        condition: service_healthy
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+  # --- Gateway ---
+  gateway:
+    build:
+      context: ./gateway
+    environment:
+      # umesto localhost:8888
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      # umesto 127.0.0.1 Eureka:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      # (opciono) ako u config-repo imaš rute sa http://localhost:808x, možeš privremeno overrajdu:
+      # SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://auth-service:8086
+      # itd. — ali preporuka je da rute u config-repo prebaciš na lb://service-id
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+  # --- Auth Service ---
+  auth-service:
+    build:
+      context: ./auth-service
+    environment:
+      SPRING_APPLICATION_NAME: auth-service  # poklapa se sa file-om u config-repo
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      # DB (umesto localhost)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/authdb
+      SPRING_DATASOURCE_USERNAME: auth
+      SPRING_DATASOURCE_PASSWORD: auth
+      # JWT (ostavi iste vrednosti i u gateway-u, ako tamo proveravaš token)
+      AUTH_JWT_ISSUER: dis-auth
+      AUTH_JWT_SECRET: change-this-in-prod-very-long-secret-key-1234567890
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_healthy
+    ports:
+      - "8086:8086"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8086/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+  # --- Catalog Service ---
+  catalog-service:
+    build:
+      context: ./catalog-service
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-catalog:5432/catalogdb
+      SPRING_DATASOURCE_USERNAME: catalog
+      SPRING_DATASOURCE_PASSWORD: catalog
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      postgres-catalog:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+  # --- Orders Service ---
+  orders-service:
+    build:
+      context: ./orders-service
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-orders:5432/ordersdb
+      SPRING_DATASOURCE_USERNAME: orders
+      SPRING_DATASOURCE_PASSWORD: orders
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      postgres-orders:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+  # --- Payments Service ---
+  payments-service:
+    build:
+      context: ./payments-service
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payments:5432/paymentsdb
+      SPRING_DATASOURCE_USERNAME: payments
+      SPRING_DATASOURCE_PASSWORD: payments
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      postgres-payments:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8084:8084"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+  # --- Notifications Service ---
+  notifications-service:
+    build:
+      context: ./notifications-service
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8085/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    networks: [dis-net]
+
+networks:
+  dis-net:
+
+volumes:
+  pgdata-auth:
+  pgdata-catalog:
+  pgdata-orders:
+  pgdata-payments:

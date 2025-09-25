@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+    discovery:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes: []   # u testu nemamo realne rute
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# ako tvoj kod čita JWT parametre već pri startu konteksta:
+auth:
+  jwt:
+    issuer: test
+    secret: test-secret-abcdefghijklmnopqrstuvwxyz123456

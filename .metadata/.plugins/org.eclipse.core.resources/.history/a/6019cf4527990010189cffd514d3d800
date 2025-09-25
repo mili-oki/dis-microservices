@@ -1,5 +1,0 @@
-package com.example.dis.notifications_service.messaging;
-
-public class PaymentEventListener {
-
-}

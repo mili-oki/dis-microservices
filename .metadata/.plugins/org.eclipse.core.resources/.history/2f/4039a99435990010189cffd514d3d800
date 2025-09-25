@@ -1,5 +1,0 @@
-package com.example.dis.orders_service.messaging;
-
-public class PaymentResultListener {
-
-}

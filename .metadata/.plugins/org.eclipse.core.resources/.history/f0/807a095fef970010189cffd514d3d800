@@ -1,5 +1,0 @@
-package com.example.dis.payments_service.client;
-
-public class NotificationsClient {
-
-}

@@ -31,7 +31,13 @@ public class SecurityConfig {
         .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
         .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
         .authorizeExchange(reg -> reg
-            .pathMatchers("/auth-service/auth/**", "/actuator/**", "/eureka/**").permitAll()
+        		.pathMatchers(
+                        "/actuator/**",
+                        "/**/actuator/**",  
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**"
+                    ).permitAll()
+        		  .pathMatchers("/auth-service/api/auth/**").permitAll()
             .anyExchange().authenticated()
         )
         .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)

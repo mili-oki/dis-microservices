@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: payments-service
   datasource:
     url: jdbc:h2:mem:paytest;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa
@@ -8,7 +10,12 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+
+  config:
+    import: ""  
   cloud:
+    config:
+      enabled: false
     discovery:
       enabled: false
     openfeign:
@@ -18,3 +25,12 @@ eureka:
   client:
     enabled: false
 
+
+management:
+  endpoints.web.exposure.include: health,info
+
+# dummy JWT samo da prođe konstrukcija beansa
+auth:
+  jwt:
+    issuer: test
+    secret: test-test-test-test-test-test-test-test-1234567890

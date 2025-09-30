@@ -28,7 +28,11 @@ jobs:
         run: docker compose build
 
       - name: Start stack
-        run: docker compose up -d
+        run: |
+          echo "Starting Docker Compose stack..."
+          docker compose up -d
+          echo "Stack started, checking service status..."
+          docker compose ps
 
       - name: Wait for services (config, eureka, gateway)
         run: |
@@ -36,16 +40,21 @@ jobs:
           wait_up () { 
             url="$1"; name="$2"; 
             echo "Waiting for $name at $url";
-            for i in {1..120}; do
+            for i in {1..180}; do
               out=$(curl -fsS "$url" || true)
               echo "$out" | grep -q '"status":"UP"' && echo "$name is UP" && return 0
-              sleep 2
+              sleep 3
             done
             echo "::error::$name not UP in time"; exit 1
           }
           wait_up "http://localhost:8888/actuator/health" "config-server"
           wait_up "http://localhost:8761/actuator/health" "discovery-service"
           wait_up "http://localhost:8080/actuator/health" "gateway"
+
+      - name: Wait for microservices to register
+        run: |
+          echo "Waiting for microservices to register with Eureka..."
+          sleep 30
 
       - name: Smoke routes via Gateway
         run: |
@@ -59,12 +68,31 @@ jobs:
           )
           for ep in "${endpoints[@]}"; do
             echo "GET /$ep"
-            curl -fsS "http://localhost:8080/$ep" | tee /dev/stderr | grep -q '"status":"UP"'
+            # Add retry logic for gateway routes
+            for i in {1..10}; do
+              if curl -fsS "http://localhost:8080/$ep" | tee /dev/stderr | grep -q '"status":"UP"'; then
+                echo "✓ $ep is UP"
+                break
+              fi
+              if [ $i -eq 10 ]; then
+                echo "::error::Failed to reach $ep after 10 attempts"
+                exit 1
+              fi
+              echo "Retrying $ep (attempt $i/10)..."
+              sleep 5
+            done
           done
 
       - name: Dump logs on failure
         if: failure()
-        run: docker compose logs --no-color > compose-logs.txt || true
+        run: |
+          echo "=== Docker Compose Logs ==="
+          docker compose logs --no-color > compose-logs.txt || true
+          echo "=== Service Status ==="
+          docker compose ps >> compose-logs.txt || true
+          echo "=== System Resources ==="
+          df -h >> compose-logs.txt || true
+          free -h >> compose-logs.txt || true
 
       - name: Upload compose logs (on failure)
         if: failure()

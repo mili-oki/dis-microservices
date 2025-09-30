@@ -1,5 +1,5 @@
 # 1)  Kratak pregled sistema
-Sistem je sastavljen od sledećih komponenti (lokalni portovi u zagradama):
+Sistem predstavlja mini verziju e-commerce domen i sastavljen je od sledećih komponenti (lokalni portovi u zagradama):
 
 **API Gateway**  (8080) — ulazna tačka za front-end i klijente; rutira zahteve ka mikroservisima, validira JWT (gateway.yml).
 
@@ -7,7 +7,7 @@ Sistem je sastavljen od sledećih komponenti (lokalni portovi u zagradama):
 
 **Catalog Service** (8082) - upravljanje proizvodima (CRUD, cena, dostupnost); određuje dostupnost artikla i cene.
 
-**Orders Service** (8083)- kreira i menja narudžbine; validira artikle preko Catalog-a; ; očekuje ishod plaćanja da bi preveo narudžbinu u PAID ili FAILED ( sihronizacija sa Payments-om)
+**Orders Service** (8083)- kreira i menja narudžbine; validira artikle sihronizovano preko Catalog-a ; očekuje ishod plaćanja da bi pratio status narudžbine ( sihronizacija sa Payments-om)
 
 **Payments Service** (8084) — transakcije plaćanja; vodi evidenciju o plaćanjima, inicira naplatu i vraća status; nakon obrade objavljuje događaje u RabbitMQ ( slanje notifikacija ).
 
@@ -65,7 +65,7 @@ CANCELLED
 PAYED  
 ```
 
-(Ne)Dozvoljenje promene statusa
+**(Ne)Dozvoljenje promene statusa**
 Dozvoljeno:
 PENDING → CONFIRMED
 PENDING → CANCELLED

@@ -1,0 +1,92 @@
+groups:
+  - name: microservices_alerts
+    rules:
+      # Service Down Alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute."
+
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) / rate(http_server_requests_seconds_count[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate for {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.job }}"
+
+      # High Response Time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 2
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time for {{ $labels.job }}"
+          description: "95th percentile response time is {{ $value }}s for service {{ $labels.job }}"
+
+      # Circuit Breaker Open
+      - alert: CircuitBreakerOpen
+        expr: resilience4j_circuitbreaker_state{state="OPEN"} == 1
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit breaker is OPEN for {{ $labels.name }}"
+          description: "Circuit breaker {{ $labels.name }} is in OPEN state for service {{ $labels.job }}"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: jvm_memory_used_bytes / jvm_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage for {{ $labels.job }}"
+          description: "Memory usage is {{ $value | humanizePercentage }} for service {{ $labels.job }}"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: system_cpu_usage > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage for {{ $labels.job }}"
+          description: "CPU usage is {{ $value | humanizePercentage }} for service {{ $labels.job }}"
+
+      # Database Connection Issues
+      - alert: DatabaseConnectionFailure
+        expr: increase(hikaricp_connections_creation_failed_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection failures for {{ $labels.job }}"
+          description: "Database connection creation failed for service {{ $labels.job }}"
+
+      # RabbitMQ Connection Issues
+      - alert: RabbitMQConnectionFailure
+        expr: rabbitmq_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "RabbitMQ connection failure"
+          description: "RabbitMQ is not accessible"
+
+      # JVM Garbage Collection Issues
+      - alert: HighGCPressure
+        expr: rate(jvm_gc_pause_seconds_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GC pressure for {{ $labels.job }}"
+          description: "GC pause rate is {{ $value }}s/s for service {{ $labels.job }}"

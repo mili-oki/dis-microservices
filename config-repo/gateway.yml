@@ -44,10 +44,23 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway,env
+        include: health,info,gateway,env,prometheus,metrics,circuitbreakers
   endpoint:
     gateway:
       enabled: true
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
 eureka:
   client:

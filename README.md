@@ -242,3 +242,72 @@ docker-compose logs --tail=100 notifications-service orders-service
 [NOTIFY:MQ] Payment event: orderId=18, amount=99.99, status=SUCCESS, msg=Payment captured 
 [ORDERS:MQ] Payment result received: orderId=18, status=SUCCESS, msg=Payment captured
 ```
+
+# 5) Monitoring i Observability
+
+Sistem uključuje kompletan monitoring stack sa Prometheus, Grafana i Alertmanager-om za praćenje performansi i alarmiranje.
+
+## Monitoring Stack
+
+- **Prometheus** (9090) - prikupljanje metrika
+- **Grafana** (3000) - vizualizacija i dashboards  
+- **Alertmanager** (9093) - upravljanje alarmima
+- **MailHog** (8025) - test email server
+
+## Pokretanje Monitoring-a
+
+```bash
+# Pokretanje svih servisa uključujući monitoring
+docker-compose up -d
+
+# Testiranje monitoring setup-a
+./scripts/test-monitoring.sh
+```
+
+## Monitoring Endpoints
+
+Svaki servis eksponuje monitoring endpoint-e:
+
+- `/actuator/health` - health check
+- `/actuator/prometheus` - Prometheus metrike
+- `/actuator/metrics` - aplikacijske metrike
+- `/actuator/circuitbreakers` - status circuit breaker-a
+
+## Circuit Breaker Monitoring
+
+Resilience4j circuit breaker-i su konfigurisani za:
+
+- **catalog-service** - validacija proizvoda
+- **orders-service** - obrada narudžbina
+- **payments-service** - obrada plaćanja
+
+## Email Notifikacije
+
+Alertmanager je konfigurisan za slanje email notifikacija:
+
+- **Critical alerts** - admin@microservices.local
+- **Warning alerts** - admin@microservices.local  
+- **Circuit breaker alerts** - devops@microservices.local
+
+## Monitoring Dashboards
+
+Grafana dashboard uključuje:
+
+- Request rate po servisima
+- Response time (95th percentile)
+- Error rate po servisima
+- Memory usage
+- CPU usage
+- Circuit breaker status
+
+## Alarmi
+
+Sistem uključuje sledeće alarme:
+
+- **Service Down** - kada servis nije dostupan
+- **High Error Rate** - kada error rate > 10%
+- **High Response Time** - kada 95th percentile > 2s
+- **Circuit Breaker Open** - kada circuit breaker je otvoren
+- **High Memory/CPU Usage** - kada usage > 80%
+
+Detaljne instrukcije u [Monitoring Setup Guide](docs/monitoring-setup.md).

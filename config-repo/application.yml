@@ -7,7 +7,60 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,prometheus,metrics,circuitbreakers
   endpoint:
-    gateway:
+    health:
+      show-details: always
+    prometheus:
       enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Resilience4j Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      catalog-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+      orders-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+      payments-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+  retry:
+    instances:
+      catalog-service:
+        max-attempts: 3
+        wait-duration: 1s
+      orders-service:
+        max-attempts: 3
+        wait-duration: 1s
+      payments-service:
+        max-attempts: 3
+        wait-duration: 1s
+  timelimiter:
+    instances:
+      catalog-service:
+        timeout-duration: 5s
+      orders-service:
+        timeout-duration: 5s
+      payments-service:
+        timeout-duration: 5s

@@ -360,16 +360,15 @@ services:
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
-      - '--web.external-url=http://localhost:9093'
     networks: [dis-net]
 
-  # --- Mail Server for Testing ---
+  # --- MailHog za testiranje email-a ---
   mailhog:
     image: mailhog/mailhog:latest
     ports:
-      - "1025:1025"  # SMTP
       - "8025:8025"  # Web UI
     networks: [dis-net]
+
 
 networks:
   dis-net:

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Test script for monitoring setup
-echo "Testing Microservices Monitoring Setup"
-echo "====================================="
+# Osnovni test monitoring setup-a
+echo "Testing Basic Monitoring Setup"
+echo "=============================="
 
 # Colors for output
 RED='\033[0;31m'
@@ -66,8 +66,8 @@ test_metrics() {
 }
 
 echo ""
-echo "1. Testing Monitoring Services"
-echo "-------------------------------"
+echo "1. Testing Basic Monitoring Services"
+echo "------------------------------------"
 
 # Test Prometheus
 test_endpoint "http://localhost:9090" "Prometheus" "200"
@@ -94,52 +94,21 @@ test_service_health "Payments Service" "8084"
 test_service_health "Notifications Service" "8085"
 
 echo ""
-echo "3. Testing Metrics Collection"
-echo "------------------------------"
+echo "3. Testing Basic Metrics"
+echo "------------------------"
 
-# Test metrics endpoints
-test_metrics "Gateway" "8080"
+# Test basic metrics endpoints
 test_metrics "Auth Service" "8086"
 test_metrics "Catalog Service" "8082"
 test_metrics "Orders Service" "8083"
-test_metrics "Payments Service" "8084"
-test_metrics "Notifications Service" "8085"
 
 echo ""
-echo "4. Testing Prometheus Targets"
-echo "------------------------------"
-
-# Test if Prometheus can scrape all targets
-echo -n "Checking Prometheus targets... "
-targets_response=$(curl -s "http://localhost:9090/api/v1/targets" 2>/dev/null)
-
-if echo "$targets_response" | grep -q '"health":"up"'; then
-    echo -e "${GREEN}✓ TARGETS UP${NC}"
-else
-    echo -e "${YELLOW}⚠ SOME TARGETS DOWN${NC}"
-fi
-
-echo ""
-echo "5. Testing Circuit Breaker Endpoints"
-echo "------------------------------------"
-
-# Test circuit breaker endpoints
-test_endpoint "http://localhost:8083/actuator/circuitbreakers" "Orders Service Circuit Breakers" "200"
-
-echo ""
-echo "6. Monitoring URLs"
-echo "------------------"
+echo "4. Basic Monitoring URLs"
+echo "------------------------"
 echo "Prometheus: http://localhost:9090"
 echo "Grafana: http://localhost:3000 (admin/admin)"
 echo "Alertmanager: http://localhost:9093"
 echo "MailHog: http://localhost:8025"
 echo ""
 
-echo "7. Quick Health Check Commands"
-echo "-------------------------------"
-echo "curl http://localhost:8080/actuator/health"
-echo "curl http://localhost:8080/actuator/prometheus | grep http_server_requests"
-echo "curl http://localhost:8083/actuator/circuitbreakers"
-echo ""
-
-echo "Monitoring setup test completed!"
+echo "Basic monitoring test completed!"

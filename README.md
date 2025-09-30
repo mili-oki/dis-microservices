@@ -167,9 +167,142 @@ message: String (Notification message)
 6. Orders sluša q.orders.payment-results i ažurira status narudžbine (PAID / FAILED).
 
 
-# 4) Kako testirati lokalno (primeri cURL, preko Gateway-a)
+# 4) Docker Setup i Pokretanje
 
-### Pokretanje servisa u Makefile instrukcijama 
+## 4.1 Pokretanje sa Docker Compose
+
+### Potrebni zahtevi
+- Docker Desktop
+- Docker Compose
+- Minimum 4GB RAM
+- Portovi: 8080, 8082-8086, 8761, 8888, 9090, 9093, 3000, 8025, 15672
+
+### Brzo pokretanje
+```bash
+# Kloniranje repozitorijuma
+git clone <repository-url>
+cd dis-microservices2
+
+# Pokretanje svih servisa
+docker-compose up -d
+
+# Proveravanje statusa
+docker-compose ps
+
+# Pregled logova
+docker-compose logs -f
+```
+
+### Makefile komande
+```bash
+# Build svih servisa
+make build
+
+# Pokretanje servisa
+make up
+
+# Zaustavljanje servisa
+make down
+
+# Pregled logova
+make logs
+
+# Status servisa
+make ps
+
+# Potpuno čišćenje
+make purge
+```
+
+### Pokretanje sa monitoring-om
+```bash
+# Pokretanje svih servisa uključujući monitoring
+docker-compose up -d
+
+# Osnovni monitoring pristup
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin/admin)
+```
+
+### Zaustavljanje servisa
+```bash
+# Zaustavljanje svih servisa
+docker-compose down
+
+# Zaustavljanje sa brisanjem volumena
+docker-compose down -v
+
+# Brisanje svih slika
+docker-compose down --rmi all
+```
+
+### Troubleshooting
+```bash
+# Pregled logova određenog servisa
+docker-compose logs <service-name>
+
+# Restart servisa
+docker-compose restart <service-name>
+
+# Rebuild servisa
+docker-compose build <service-name>
+docker-compose up -d <service-name>
+
+# Proveravanje resursa
+docker stats
+```
+
+## 4.3 Development Setup
+
+### Lokalni development
+```bash
+# Pokretanje samo infrastrukture (DB, RabbitMQ, Config Server)
+docker-compose up -d postgres-auth postgres-catalog postgres-orders postgres-payments rabbitmq config-server discovery-service
+
+# Pokretanje servisa lokalno (u IDE-u)
+# - Auth Service: 8086
+# - Catalog Service: 8082  
+# - Orders Service: 8083
+# - Payments Service: 8084
+# - Notifications Service: 8085
+# - Gateway: 8080
+```
+
+### Hot reload za development
+```bash
+# Restart samo jednog servisa
+docker-compose restart <service-name>
+
+# Rebuild i restart
+docker-compose build <service-name> && docker-compose up -d <service-name>
+```
+
+## 4.2 Portovi i Servisi
+
+| Servis | Port | Opis |
+|--------|------|------|
+| Gateway | 8080 | API Gateway |
+| Auth Service | 8086 | Autentifikacija |
+| Catalog Service | 8082 | Katalog proizvoda |
+| Orders Service | 8083 | Upravljanje narudžbinama |
+| Payments Service | 8084 | Plaćanja |
+| Notifications Service | 8085 | Notifikacije |
+| Discovery Service | 8761 | Eureka |
+| Config Server | 8888 | Konfiguracija |
+| Prometheus | 9090 | Metrije |
+| Grafana | 3000 | Dashboard |
+| Alertmanager | 9093 | Alarmi |
+| MailHog | 8025 | Test email |
+| RabbitMQ | 15672 | Message broker UI |
+
+## 4.4 Minimalni zahtevi
+
+- **RAM**: 4GB
+- **CPU**: 2 cores  
+- **Disk**: 5GB slobodnog prostora
+- **Docker**: 20.10+ verzija
+
+# 5) Kako testirati lokalno (primeri cURL, preko Gateway-a) 
 
 ### 1. Registracija/Login korisnika preko Auth-Service
 #### [STEP 1] Registration
@@ -243,71 +376,55 @@ docker-compose logs --tail=100 notifications-service orders-service
 [ORDERS:MQ] Payment result received: orderId=18, status=SUCCESS, msg=Payment captured
 ```
 
-# 5) Monitoring i Observability
+# 6) Osnovni Monitoring
 
-Sistem uključuje kompletan monitoring stack sa Prometheus, Grafana i Alertmanager-om za praćenje performansi i alarmiranje.
+Sistem uključuje osnovni monitoring stack za praćenje performansi mikroservisa.
 
-## Monitoring Stack
+## 6.1 Monitoring Servisi
 
 - **Prometheus** (9090) - prikupljanje metrika
-- **Grafana** (3000) - vizualizacija i dashboards  
+- **Grafana** (3000) - osnovni dashboard  
 - **Alertmanager** (9093) - upravljanje alarmima
 - **MailHog** (8025) - test email server
 
-## Pokretanje Monitoring-a
+## 6.2 Pristup Monitoring-u
 
 ```bash
-# Pokretanje svih servisa uključujući monitoring
-docker-compose up -d
+# Prometheus - metrije
+http://localhost:9090
 
-# Testiranje monitoring setup-a
-./scripts/test-monitoring.sh
+# Grafana - dashboard (admin/admin)
+http://localhost:3000
+
+# Alertmanager - alarmi
+http://localhost:9093
+
+# MailHog - test email
+http://localhost:8025
 ```
 
-## Monitoring Endpoints
+## 6.3 Osnovno Alarmiranje
 
-Svaki servis eksponuje monitoring endpoint-e:
-
-- `/actuator/health` - health check
-- `/actuator/prometheus` - Prometheus metrike
-- `/actuator/metrics` - aplikacijske metrike
-- `/actuator/circuitbreakers` - status circuit breaker-a
-
-## Circuit Breaker Monitoring
-
-Resilience4j circuit breaker-i su konfigurisani za:
-
-- **catalog-service** - validacija proizvoda
-- **orders-service** - obrada narudžbina
-- **payments-service** - obrada plaćanja
-
-## Email Notifikacije
-
-Alertmanager je konfigurisan za slanje email notifikacija:
-
-- **Critical alerts** - admin@microservices.local
-- **Warning alerts** - admin@microservices.local  
-- **Circuit breaker alerts** - devops@microservices.local
-
-## Monitoring Dashboards
-
-Grafana dashboard uključuje:
-
-- Request rate po servisima
-- Response time (95th percentile)
-- Error rate po servisima
-- Memory usage
-- CPU usage
-- Circuit breaker status
-
-## Alarmi
-
-Sistem uključuje sledeće alarme:
+Sistem uključuje osnovne alarme:
 
 - **Service Down** - kada servis nije dostupan
+- **Circuit Breaker Open** - kada circuit breaker je otvoren  
 - **High Error Rate** - kada error rate > 10%
-- **High Response Time** - kada 95th percentile > 2s
-- **Circuit Breaker Open** - kada circuit breaker je otvoren
-- **High Memory/CPU Usage** - kada usage > 80%
 
-Detaljne instrukcije u [Monitoring Setup Guide](docs/monitoring-setup.md).
+Email notifikacije se šalju na `admin@microservices.local` preko MailHog-a.
+
+### Testiranje alarmiranja
+```bash
+# Test osnovnog alarmiranja
+./scripts/test-alerts.sh
+
+# Pregled email notifikacija
+# Otvori http://localhost:8025 u browseru
+```
+
+## 6.4 Osnovni Endpoints
+
+Svaki servis ima osnovne monitoring endpoint-e:
+
+- `/actuator/health` - health check
+- `/actuator/prometheus` - metrije za Prometheus

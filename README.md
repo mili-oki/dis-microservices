@@ -175,7 +175,7 @@ message: String (Notification message)
 - Docker Desktop
 - Docker Compose
 - Minimum 4GB RAM
-- Portovi: 8080, 8082-8086, 8761, 8888, 9090, 9093, 3000, 8025, 15672
+- Portovi: 8080, 8082-8086, 9090, 3000, 9093, 8025
 
 ### Brzo pokretanje
 ```bash
@@ -195,23 +195,9 @@ docker-compose logs -f
 
 ### Makefile komande
 ```bash
-# Build svih servisa
-make build
-
-# Pokretanje servisa
-make up
-
-# Zaustavljanje servisa
-make down
-
-# Pregled logova
-make logs
-
-# Status servisa
-make ps
-
-# Potpuno čišćenje
-make purge
+make up    # Pokretanje
+make down  # Zaustavljanje
+make logs  # Pregled logova
 ```
 
 ### Pokretanje sa monitoring-om
@@ -226,40 +212,29 @@ docker-compose up -d
 
 ### Zaustavljanje servisa
 ```bash
-# Zaustavljanje svih servisa
 docker-compose down
-
-# Zaustavljanje sa brisanjem volumena
-docker-compose down -v
-
-# Brisanje svih slika
-docker-compose down --rmi all
 ```
 
 ### Troubleshooting
 ```bash
-# Pregled logova određenog servisa
-docker-compose logs <service-name>
+# Pregled logova
+docker-compose logs -f
 
 # Restart servisa
-docker-compose restart <service-name>
+docker-compose restart
 
-# Rebuild servisa
-docker-compose build <service-name>
-docker-compose up -d <service-name>
-
-# Proveravanje resursa
-docker stats
+# Proveravanje statusa
+docker-compose ps
 ```
 
-## 4.3 Development Setup
+## 4.3 Lokalni Development
 
-### Lokalni development
+### Pokretanje samo infrastrukture
 ```bash
-# Pokretanje samo infrastrukture (DB, RabbitMQ, Config Server)
+# Pokretanje samo baza, RabbitMQ, Config Server i Discovery
 docker-compose up -d postgres-auth postgres-catalog postgres-orders postgres-payments rabbitmq config-server discovery-service
 
-# Pokretanje servisa lokalno (u IDE-u)
+# Pokretanje servisa lokalno u IDE-u
 # - Auth Service: 8086
 # - Catalog Service: 8082  
 # - Orders Service: 8083
@@ -277,7 +252,37 @@ docker-compose restart <service-name>
 docker-compose build <service-name> && docker-compose up -d <service-name>
 ```
 
-## 4.2 Portovi i Servisi
+### IDE Setup
+```bash
+# 1. Pokretanje infrastrukture
+docker-compose up -d postgres-auth postgres-catalog postgres-orders postgres-payments rabbitmq config-server discovery-service
+
+# 2. Pokretanje servisa u IDE-u (IntelliJ IDEA, VS Code, Eclipse)
+# - Importuj svaki servis kao Maven projekat
+# - Pokreni main klasu svakog servisa
+# - Portovi su već definisani u application.yml
+
+# 3. Testiranje
+curl http://localhost:8080/actuator/health
+```
+
+### Debugging
+```bash
+# Pregled logova infrastrukture
+docker-compose logs postgres-auth
+docker-compose logs rabbitmq
+docker-compose logs config-server
+
+# Pregled logova servisa (ako su u Docker-u)
+docker-compose logs auth-service
+docker-compose logs orders-service
+
+# Restart infrastrukture
+docker-compose restart postgres-auth rabbitmq config-server
+```
+
+
+## 4.4 Portovi i Servisi
 
 | Servis | Port | Opis |
 |--------|------|------|
@@ -287,19 +292,14 @@ docker-compose build <service-name> && docker-compose up -d <service-name>
 | Orders Service | 8083 | Upravljanje narudžbinama |
 | Payments Service | 8084 | Plaćanja |
 | Notifications Service | 8085 | Notifikacije |
-| Discovery Service | 8761 | Eureka |
-| Config Server | 8888 | Konfiguracija |
 | Prometheus | 9090 | Metrije |
 | Grafana | 3000 | Dashboard |
 | Alertmanager | 9093 | Alarmi |
 | MailHog | 8025 | Test email |
-| RabbitMQ | 15672 | Message broker UI |
 
-## 4.4 Minimalni zahtevi
+## 4.5 Minimalni zahtevi
 
 - **RAM**: 4GB
-- **CPU**: 2 cores  
-- **Disk**: 5GB slobodnog prostora
 - **Docker**: 20.10+ verzija
 
 # 5) Kako testirati lokalno (primeri cURL, preko Gateway-a) 
@@ -405,26 +405,8 @@ http://localhost:8025
 
 ## 6.3 Osnovno Alarmiranje
 
-Sistem uključuje osnovne alarme:
-
 - **Service Down** - kada servis nije dostupan
 - **Circuit Breaker Open** - kada circuit breaker je otvoren  
 - **High Error Rate** - kada error rate > 10%
 
-Email notifikacije se šalju na `admin@microservices.local` preko MailHog-a.
-
-### Testiranje alarmiranja
-```bash
-# Test osnovnog alarmiranja
-./scripts/test-alerts.sh
-
-# Pregled email notifikacija
-# Otvori http://localhost:8025 u browseru
-```
-
-## 6.4 Osnovni Endpoints
-
-Svaki servis ima osnovne monitoring endpoint-e:
-
-- `/actuator/health` - health check
-- `/actuator/prometheus` - metrije za Prometheus
+Email notifikacije: `admin@microservices.local` (pregled na http://localhost:8025)

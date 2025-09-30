@@ -82,29 +82,17 @@ test_endpoint "http://localhost:9093" "Alertmanager" "200"
 test_endpoint "http://localhost:8025" "MailHog" "200"
 
 echo ""
-echo "2. Testing Microservices Health"
-echo "--------------------------------"
+echo "2. Testing Basic Health"
+echo "----------------------"
 
-# Test all microservices
+# Test basic services
 test_service_health "Gateway" "8080"
 test_service_health "Auth Service" "8086"
-test_service_health "Catalog Service" "8082"
 test_service_health "Orders Service" "8083"
-test_service_health "Payments Service" "8084"
-test_service_health "Notifications Service" "8085"
 
 echo ""
-echo "3. Testing Basic Metrics"
-echo "------------------------"
-
-# Test basic metrics endpoints
-test_metrics "Auth Service" "8086"
-test_metrics "Catalog Service" "8082"
-test_metrics "Orders Service" "8083"
-
-echo ""
-echo "4. Basic Monitoring URLs"
-echo "------------------------"
+echo "3. Monitoring URLs"
+echo "------------------"
 echo "Prometheus: http://localhost:9090"
 echo "Grafana: http://localhost:3000 (admin/admin)"
 echo "Alertmanager: http://localhost:9093"

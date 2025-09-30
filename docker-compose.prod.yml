@@ -1,0 +1,274 @@
+version: "3.9"
+
+# Production overrides for docker-compose.yml
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  # --- Config Server ---
+  config-server:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # Production config server settings
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  # --- Eureka (Discovery) ---
+  discovery-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  # --- Gateway ---
+  gateway:
+    environment:
+      # Production profile - enable security
+      SPRING_PROFILES_ACTIVE: prod
+      # Production JWT settings
+      AUTH_JWT_SECRET: ${JWT_SECRET:-change-this-in-prod-very-long-secret-key-1234567890}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  # --- Auth Service ---
+  auth-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # Production JWT settings
+      AUTH_JWT_SECRET: ${JWT_SECRET:-change-this-in-prod-very-long-secret-key-1234567890}
+      # Production database settings
+      SPRING_DATASOURCE_URL: ${AUTH_DB_URL:-jdbc:postgresql://postgres-auth:5432/authdb}
+      SPRING_DATASOURCE_USERNAME: ${AUTH_DB_USER:-auth}
+      SPRING_DATASOURCE_PASSWORD: ${AUTH_DB_PASSWORD:-auth}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  # --- Catalog Service ---
+  catalog-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # Production database settings
+      SPRING_DATASOURCE_URL: ${CATALOG_DB_URL:-jdbc:postgresql://postgres-catalog:5432/catalogdb}
+      SPRING_DATASOURCE_USERNAME: ${CATALOG_DB_USER:-catalog}
+      SPRING_DATASOURCE_PASSWORD: ${CATALOG_DB_PASSWORD:-catalog}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  # --- Orders Service ---
+  orders-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # Production database settings
+      SPRING_DATASOURCE_URL: ${ORDERS_DB_URL:-jdbc:postgresql://postgres-orders:5432/ordersdb}
+      SPRING_DATASOURCE_USERNAME: ${ORDERS_DB_USER:-orders}
+      SPRING_DATASOURCE_PASSWORD: ${ORDERS_DB_PASSWORD:-orders}
+      # Production RabbitMQ settings
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS:-guest}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  # --- Payments Service ---
+  payments-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # Production database settings
+      SPRING_DATASOURCE_URL: ${PAYMENTS_DB_URL:-jdbc:postgresql://postgres-payments:5432/paymentsdb}
+      SPRING_DATASOURCE_USERNAME: ${PAYMENTS_DB_USER:-payments}
+      SPRING_DATASOURCE_PASSWORD: ${PAYMENTS_DB_PASSWORD:-payments}
+      # Production RabbitMQ settings
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS:-guest}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  # --- Notifications Service ---
+  notifications-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # Production RabbitMQ settings
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS:-guest}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  # --- Databases ---
+  postgres-auth:
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME:-authdb}
+      POSTGRES_USER: ${AUTH_DB_USER:-auth}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD:-auth}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  postgres-catalog:
+    environment:
+      POSTGRES_DB: ${CATALOG_DB_NAME:-catalogdb}
+      POSTGRES_USER: ${CATALOG_DB_USER:-catalog}
+      POSTGRES_PASSWORD: ${CATALOG_DB_PASSWORD:-catalog}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  postgres-orders:
+    environment:
+      POSTGRES_DB: ${ORDERS_DB_NAME:-ordersdb}
+      POSTGRES_USER: ${ORDERS_DB_USER:-orders}
+      POSTGRES_PASSWORD: ${ORDERS_DB_PASSWORD:-orders}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  postgres-payments:
+    environment:
+      POSTGRES_DB: ${PAYMENTS_DB_NAME:-paymentsdb}
+      POSTGRES_USER: ${PAYMENTS_DB_USER:-payments}
+      POSTGRES_PASSWORD: ${PAYMENTS_DB_PASSWORD:-payments}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  # --- RabbitMQ ---
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  # --- Monitoring ---
+  prometheus:
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    restart: unless-stopped
+
+  grafana:
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  alertmanager:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    restart: unless-stopped
+
+  # --- MailHog (only for development) ---
+  mailhog:
+    profiles: ["dev"]  # Only start in development

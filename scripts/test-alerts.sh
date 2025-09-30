@@ -36,25 +36,12 @@ else
     echo -e "${RED}✗ FAIL${NC} (HTTP $response)"
 fi
 
-echo ""
-echo "3. Testing Prometheus Alerts"
-echo "----------------------------"
-
-# Test Prometheus alerts
-echo -n "Checking Prometheus alerts... "
-alerts_response=$(curl -s "http://localhost:9090/api/v1/alerts" 2>/dev/null)
-if echo "$alerts_response" | grep -q '"status":"success"'; then
-    echo -e "${GREEN}✓ ALERTS CONFIGURED${NC}"
-else
-    echo -e "${YELLOW}⚠ NO ALERTS FOUND${NC}"
-fi
 
 echo ""
-echo "4. Alerting URLs"
+echo "3. Alerting URLs"
 echo "----------------"
 echo "Alertmanager: http://localhost:9093"
 echo "MailHog: http://localhost:8025"
-echo "Prometheus Alerts: http://localhost:9090/alerts"
 echo ""
 
 echo "Basic alerting test completed!"

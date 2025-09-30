@@ -14,21 +14,10 @@ public class GatewaySecurityConfig {
   public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
     return http
       .csrf(ServerHttpSecurity.CsrfSpec::disable)
+      .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+      .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
       .authorizeExchange(ex -> ex
-        // actuator samog gateway-a
-        .pathMatchers("/actuator/**").permitAll()
-        // PROKSI PUTANJE ka servisima – pusti health/info bez tokena
-        .pathMatchers(
-          "/auth-service/actuator/**",
-          "/catalog-service/actuator/**",
-          "/orders-service/actuator/**",
-          "/payments-service/actuator/**",
-          "/notifications-service/actuator/**"
-        ).permitAll()
-        // javni auth endpointi
-        .pathMatchers("/auth-service/**", "/auth/**").permitAll()
-        // ostalo zahteva auth
-        .anyExchange().authenticated()
+        .anyExchange().permitAll()
       )
       .build();
   }

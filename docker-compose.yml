@@ -130,6 +130,8 @@ services:
     build:
       context: ./gateway
     environment:
+      # Development profile - disable security
+      SPRING_PROFILES_ACTIVE: dev
       # umesto localhost:8888
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       # umesto 127.0.0.1 Eureka:

@@ -167,9 +167,142 @@ message: String (Notification message)
 6. Orders sluša q.orders.payment-results i ažurira status narudžbine (PAID / FAILED).
 
 
-# 4) Kako testirati lokalno (primeri cURL, preko Gateway-a)
+# 4) Docker Setup i Pokretanje
 
-### Pokretanje servisa u Makefile instrukcijama 
+## 4.1 Pokretanje sa Docker Compose
+
+### Potrebni zahtevi
+- Docker Desktop
+- Docker Compose
+- Minimum 4GB RAM
+- Portovi: 8080, 8082-8086, 9090, 3000, 9093, 8025
+
+### Brzo pokretanje
+```bash
+# Kloniranje repozitorijuma
+git clone <repository-url>
+cd dis-microservices2
+
+# Pokretanje svih servisa
+docker-compose up -d
+
+# Proveravanje statusa
+docker-compose ps
+
+# Pregled logova
+docker-compose logs -f
+```
+
+### Makefile komande
+```bash
+make up    # Pokretanje
+make down  # Zaustavljanje
+make logs  # Pregled logova
+```
+
+### Pokretanje sa monitoring-om
+```bash
+# Pokretanje svih servisa uključujući monitoring
+docker-compose up -d
+
+# Osnovni monitoring pristup
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin/admin)
+```
+
+### Zaustavljanje servisa
+```bash
+docker-compose down
+```
+
+### Troubleshooting
+```bash
+# Pregled logova
+docker-compose logs -f
+
+# Restart servisa
+docker-compose restart
+
+# Proveravanje statusa
+docker-compose ps
+```
+
+## 4.3 Lokalni Development
+
+### Pokretanje samo infrastrukture
+```bash
+# Pokretanje samo baza, RabbitMQ, Config Server i Discovery
+docker-compose up -d postgres-auth postgres-catalog postgres-orders postgres-payments rabbitmq config-server discovery-service
+
+# Pokretanje servisa lokalno u IDE-u
+# - Auth Service: 8086
+# - Catalog Service: 8082  
+# - Orders Service: 8083
+# - Payments Service: 8084
+# - Notifications Service: 8085
+# - Gateway: 8080
+```
+
+### Hot reload za development
+```bash
+# Restart samo jednog servisa
+docker-compose restart <service-name>
+
+# Rebuild i restart
+docker-compose build <service-name> && docker-compose up -d <service-name>
+```
+
+### IDE Setup
+```bash
+# 1. Pokretanje infrastrukture
+docker-compose up -d postgres-auth postgres-catalog postgres-orders postgres-payments rabbitmq config-server discovery-service
+
+# 2. Pokretanje servisa u IDE-u (IntelliJ IDEA, VS Code, Eclipse)
+# - Importuj svaki servis kao Maven projekat
+# - Pokreni main klasu svakog servisa
+# - Portovi su već definisani u application.yml
+
+# 3. Testiranje
+curl http://localhost:8080/actuator/health
+```
+
+### Debugging
+```bash
+# Pregled logova infrastrukture
+docker-compose logs postgres-auth
+docker-compose logs rabbitmq
+docker-compose logs config-server
+
+# Pregled logova servisa (ako su u Docker-u)
+docker-compose logs auth-service
+docker-compose logs orders-service
+
+# Restart infrastrukture
+docker-compose restart postgres-auth rabbitmq config-server
+```
+
+
+## 4.4 Portovi i Servisi
+
+| Servis | Port | Opis |
+|--------|------|------|
+| Gateway | 8080 | API Gateway |
+| Auth Service | 8086 | Autentifikacija |
+| Catalog Service | 8082 | Katalog proizvoda |
+| Orders Service | 8083 | Upravljanje narudžbinama |
+| Payments Service | 8084 | Plaćanja |
+| Notifications Service | 8085 | Notifikacije |
+| Prometheus | 9090 | Metrije |
+| Grafana | 3000 | Dashboard |
+| Alertmanager | 9093 | Alarmi |
+| MailHog | 8025 | Test email |
+
+## 4.5 Minimalni zahtevi
+
+- **RAM**: 4GB
+- **Docker**: 20.10+ verzija
+
+# 5) Kako testirati lokalno (primeri cURL, preko Gateway-a) 
 
 ### 1. Registracija/Login korisnika preko Auth-Service
 #### [STEP 1] Registration
@@ -242,3 +375,38 @@ docker-compose logs --tail=100 notifications-service orders-service
 [NOTIFY:MQ] Payment event: orderId=18, amount=99.99, status=SUCCESS, msg=Payment captured 
 [ORDERS:MQ] Payment result received: orderId=18, status=SUCCESS, msg=Payment captured
 ```
+
+# 6) Osnovni Monitoring
+
+Sistem uključuje osnovni monitoring stack za praćenje performansi mikroservisa.
+
+## 6.1 Monitoring Servisi
+
+- **Prometheus** (9090) - prikupljanje metrika
+- **Grafana** (3000) - osnovni dashboard  
+- **Alertmanager** (9093) - upravljanje alarmima
+- **MailHog** (8025) - test email server
+
+## 6.2 Pristup Monitoring-u
+
+```bash
+# Prometheus - metrije
+http://localhost:9090
+
+# Grafana - dashboard (admin/admin)
+http://localhost:3000
+
+# Alertmanager - alarmi
+http://localhost:9093
+
+# MailHog - test email
+http://localhost:8025
+```
+
+## 6.3 Osnovno Alarmiranje
+
+- **Service Down** - kada servis nije dostupan
+- **Circuit Breaker Open** - kada circuit breaker je otvoren  
+- **High Error Rate** - kada error rate > 10%
+
+Email notifikacije: `admin@microservices.local` (pregled na http://localhost:8025)

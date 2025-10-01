@@ -350,11 +350,6 @@ curl -i -X POST "http://localhost:8080/orders-service/orders?productId=1&quantit
 curl -i http://localhost:8080/orders-service/orders 
 ```
 
-#### [STEP 6] Confirm Order
-```bash
-curl -X PUT http://localhost:8080/orders-service/orders/1/confirm 
-```
-
 ### 3. Korisnik pokreće plaćanje narudžbine(orderId) u Payments-Service
 
 #### [STEP 6] Process Payment
